@@ -200,6 +200,50 @@ Generate {count} questions now as a JSON array:"""
 
         logger.info(f"Successfully parsed {len(questions)} questions")
 
+        # Validate each question has the required fields
+        validated_questions = []
+        for idx, q in enumerate(questions):
+            if not isinstance(q, dict):
+                logger.warning(f"Question {idx} is not a dict: {type(q)}")
+                continue
+
+            # Ensure required fields exist
+            if "question" not in q:
+                logger.warning(f"Question {idx} missing 'question' field")
+                continue
+
+            # Ensure expected_answer is a list
+            if "expected_answer" not in q:
+                q["expected_answer"] = ["No expected answer provided"]
+            elif not isinstance(q["expected_answer"], list):
+                # Convert to list if it's a string
+                if isinstance(q["expected_answer"], str):
+                    q["expected_answer"] = [q["expected_answer"]]
+                else:
+                    q["expected_answer"] = [str(q["expected_answer"])]
+
+            # Ensure keywords is a list
+            if "keywords" not in q:
+                q["keywords"] = []
+            elif not isinstance(q["keywords"], list):
+                if isinstance(q["keywords"], str):
+                    q["keywords"] = [k.strip() for k in q["keywords"].split(",")]
+                else:
+                    q["keywords"] = [str(q["keywords"])]
+
+            validated_questions.append(q)
+            logger.info(f"Validated question {idx + 1}: {q['question'][:50]}...")
+
+        questions = validated_questions
+
+        if len(questions) == 0:
+            logger.error(
+                f"No valid questions after validation. Full response: {response}"
+            )
+            raise ValueError(
+                f"No valid question objects after validation. Check logs for details."
+            )
+
         if len(questions) != count:
             # Pad or trim to exact count
             if len(questions) < count:

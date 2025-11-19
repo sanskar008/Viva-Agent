@@ -56,17 +56,20 @@ function VivaStudent({ sessionId, onBack }) {
         utterance.rate = 0.9; // Slightly slower for clarity
         utterance.pitch = 1;
         utterance.volume = 1;
-        
+
         utterance.onerror = (event) => {
           console.error("Speech synthesis error:", event);
         };
-        
+
         utterance.onend = () => {
           console.log("Finished speaking question");
         };
 
         window.speechSynthesis.speak(utterance);
-        console.log("Started speaking question:", questionText.substring(0, 50) + "...");
+        console.log(
+          "Started speaking question:",
+          questionText.substring(0, 50) + "..."
+        );
       }, 100);
     } else {
       console.warn("Speech synthesis not supported in this browser");
